@@ -33,5 +33,18 @@ namespace UnitTests
             var row = excelRow.row;
             Assert.AreEqual(referenceRow.OuterXml, row.OuterXml);
         }
+
+        [TestMethod]
+        public void ModifyExistingCell()
+        {
+            var referenceCell = new Cell(new CellValue("World"));
+            var referenceRow = new Row(referenceCell);
+            var excelCell = new ExcelCell();
+            excelCell.Value = "Hello";
+            var excelRow = new ExcelRow();
+            excelRow.Cells.Add(excelCell);
+            excelRow.Cells[0].Value = "World";
+            Assert.AreEqual(referenceRow.OuterXml, excelRow.row.OuterXml);
+        }
     }
 }
