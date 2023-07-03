@@ -1,10 +1,7 @@
 ﻿// SPDX-FileCopyrightText: 2022 James D. Hasselman <james.d.hasselman@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using DocumentFormat.OpenXml.Spreadsheet;
-using Hasselman.Backsplice.Spreadsheet.Excel;
-
-namespace UnitTests
+namespace Hasselman.Backsplice.Spreadsheet.Excel.UnitTests
 {
     [TestClass]
     public class TestExcelCell
@@ -12,8 +9,8 @@ namespace UnitTests
         [TestMethod]
         public void EmptyCell()
         {
-            var referenceCell = new Cell();
-            var excelCell = new ExcelCell();
+            var referenceCell = new XlSpreadsheet.Cell();
+            var excelCell = new Cell();
             var testCell = excelCell.cell;
             Assert.AreEqual(testCell.OuterXml, referenceCell.OuterXml);
         }
@@ -21,8 +18,8 @@ namespace UnitTests
         [TestMethod]
         public void NonEmptyCell()
         {
-            var referenceCell = new Cell(new CellValue("TEST"));
-            var excelCell = new ExcelCell();
+            var referenceCell = new XlSpreadsheet.Cell(new XlSpreadsheet.CellValue("TEST"));
+            var excelCell = new Cell();
             excelCell.Value = "TEST";
             var testCell = excelCell.cell;
             Assert.AreEqual(testCell.OuterXml, referenceCell.OuterXml);
@@ -31,7 +28,7 @@ namespace UnitTests
         [TestMethod]
         public void UpdateCellValue()
         {
-            var excelCell = new ExcelCell();
+            var excelCell = new Cell();
             excelCell.Value = "HELLO";
             var referenceCell = excelCell.cell;
             excelCell.Value = "WORLD";

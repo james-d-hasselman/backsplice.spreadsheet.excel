@@ -2,29 +2,28 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using System.Collections;
-using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Hasselman.Backsplice.Spreadsheet.Excel
 {
-    public class ExcelWorksheet : IWorksheet
+    public class Worksheet : IWorksheet
     {
-        internal Worksheet worksheet;
-        private SheetData sheetData;
+        internal XlSpreadsheet.Worksheet worksheet;
+        private XlSpreadsheet.SheetData sheetData;
         private RowList rows;
 
-        public ExcelWorksheet()
+        public Worksheet()
         {
-            this.worksheet = new Worksheet();
-            this.sheetData = new SheetData();
-            this.worksheet.AppendChild<SheetData>(this.sheetData);
+            this.worksheet = new XlSpreadsheet.Worksheet();
+            this.sheetData = new XlSpreadsheet.SheetData();
+            this.worksheet.AppendChild<XlSpreadsheet.SheetData>(this.sheetData);
             rows = new RowList(sheetData);
             LeftHeader = "";
             RightHeader = "";
         }
-        internal ExcelWorksheet(Worksheet worksheet)
+        internal Worksheet(XlSpreadsheet.Worksheet worksheet)
         {
             this.worksheet = worksheet;
-            var headerFooters = worksheet.Descendants<HeaderFooter>();
+            var headerFooters = worksheet.Descendants<XlSpreadsheet.HeaderFooter>();
             LeftHeader = "";
             RightHeader = "";
             if (headerFooters.Any())
@@ -40,7 +39,7 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
                     RightHeader = headerParts[1];
                 }
             }
-            this.sheetData = this.worksheet.Elements<SheetData>().First();
+            this.sheetData = this.worksheet.Elements<XlSpreadsheet.SheetData>().First();
             rows = new RowList(sheetData);
         }
 
@@ -49,10 +48,10 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
             get => rows;
             set
             {
-                sheetData.RemoveAllChildren<Row>();
+                sheetData.RemoveAllChildren<XlSpreadsheet.Row>();
                 foreach (var row in value)
                 {
-                    var excelRow = new ExcelRow();
+                    var excelRow = new Row();
                     excelRow.Cells = row.Cells;
                     sheetData.AddChild(excelRow.row);
                 }
@@ -67,50 +66,50 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
 
         public IWorksheet DeepCopy()
         {
-            var worksheetCopy = (Worksheet)worksheet.Clone();
-            return new ExcelWorksheet(worksheetCopy);
+            var worksheetCopy = (XlSpreadsheet.Worksheet)worksheet.Clone();
+            return new Worksheet(worksheetCopy);
         }
 
         private class RowList : IList<IRow>
         {
-            private SheetData sheetData;
+            private XlSpreadsheet.SheetData sheetData;
 
-            public RowList(SheetData sheetData)
+            public RowList(XlSpreadsheet.SheetData sheetData)
             {
                 this.sheetData = sheetData;
             }
 
             public IRow this[int index]
             {
-                get => new ExcelRow(sheetData.Elements<Row>().ElementAt(index));
+                get => new Row(sheetData.Elements<XlSpreadsheet.Row>().ElementAt(index));
                 set
                 {
-                    var excelRow = new ExcelRow();
+                    var excelRow = new Row();
                     excelRow.Cells = value.Cells;
-                    var oldChild = sheetData.Elements<Row>().ElementAt(index);
+                    var oldChild = sheetData.Elements<XlSpreadsheet.Row>().ElementAt(index);
                     sheetData.ReplaceChild(excelRow.row, oldChild);
                 }
             }
 
-            public int Count => sheetData.Elements<Row>().Count();
+            public int Count => sheetData.Elements<XlSpreadsheet.Row>().Count();
 
             public bool IsReadOnly => false;
 
             public void Add(IRow item)
             {
-                var excelRow = new ExcelRow();
+                var excelRow = new Row();
                 excelRow.Cells = item.Cells;
                 sheetData.AddChild(excelRow.row);
             }
 
             public void Clear()
             {
-                sheetData.RemoveAllChildren<Row>();
+                sheetData.RemoveAllChildren<XlSpreadsheet.Row>();
             }
 
             public bool Contains(IRow item)
             {
-                var result = from row in sheetData.Elements<Row>()
+                var result = from row in sheetData.Elements<XlSpreadsheet.Row>()
                              where row == item
                              select row;
                 return result.Any();
@@ -120,20 +119,20 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
             {
                 for (int i = 0; i < Count; i++)
                 {
-                    var row = sheetData.Elements<Row>().ElementAt(i);
-                    array.SetValue(new ExcelRow(row), arrayIndex++);
+                    var row = sheetData.Elements<XlSpreadsheet.Row>().ElementAt(i);
+                    array.SetValue(new Row(row), arrayIndex++);
                 }
             }
 
             public IEnumerator<IRow> GetEnumerator()
             {
-                return (IEnumerator<IRow>)(from row in sheetData.Elements<Row>()
-                                            select new ExcelRow(row));
+                return (IEnumerator<IRow>)(from row in sheetData.Elements<XlSpreadsheet.Row>()
+                                           select new Row(row));
             }
 
             public int IndexOf(IRow item)
             {
-                var rows = sheetData.Elements<Row>();
+                var rows = sheetData.Elements<XlSpreadsheet.Row>();
                 for (int i = 0; i < rows.Count(); i++)
                 {
                     var row = rows.ElementAt(i);
@@ -147,14 +146,14 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
 
             public void Insert(int index, IRow item)
             {
-                var excelRow = new ExcelRow();
+                var excelRow = new Row();
                 excelRow.Cells = item.Cells;
                 sheetData.InsertAt(excelRow.row, index);
             }
 
             public bool Remove(IRow item)
             {
-                var excelRow = new ExcelRow();
+                var excelRow = new Row();
                 excelRow.Cells = item.Cells;
                 if (sheetData.RemoveChild(excelRow.row) != null)
                 {
@@ -165,7 +164,7 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
 
             public void RemoveAt(int index)
             {
-                var row = sheetData.Elements<Row>().ElementAt(index);
+                var row = sheetData.Elements<XlSpreadsheet.Row>().ElementAt(index);
                 sheetData.RemoveChild(row);
             }
 

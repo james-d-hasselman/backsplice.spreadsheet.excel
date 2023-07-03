@@ -1,24 +1,18 @@
 ﻿// SPDX-FileCopyrightText: 2022 James D. Hasselman <james.d.hasselman@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using DocumentFormat.OpenXml.Spreadsheet;
-
-#if DEBUG
-using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleToAttribute("UnitTests")]
-#endif
-
 namespace Hasselman.Backsplice.Spreadsheet.Excel
 {
-    public class ExcelCell : ICell
+    public class Cell : ICell
     {
-        internal Cell cell;
+        internal XlSpreadsheet.Cell cell;
 
-        public ExcelCell() {
-            cell = new Cell();
+        public Cell()
+        {
+            cell = new XlSpreadsheet.Cell();
         }
 
-        internal ExcelCell(Cell cell)
+        internal Cell(XlSpreadsheet.Cell cell)
         {
             this.cell = cell;
         }
@@ -36,7 +30,7 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
             }
             set
             {
-                cell.CellValue = new CellValue(value);
+                cell.CellValue = new XlSpreadsheet.CellValue(value);
             }
         }
     }

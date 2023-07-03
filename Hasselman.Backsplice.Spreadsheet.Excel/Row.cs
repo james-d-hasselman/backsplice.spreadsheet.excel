@@ -1,29 +1,20 @@
 ﻿// SPDX-FileCopyrightText: 2022 James D. Hasselman <james.d.hasselman@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using DocumentFormat.OpenXml.Spreadsheet;
-using System.Collections;
-using System.Collections.Specialized;
-
-#if DEBUG
-using System.Runtime.CompilerServices;
-[assembly: InternalsVisibleToAttribute("UnitTests")]
-#endif
-
 namespace Hasselman.Backsplice.Spreadsheet.Excel
 {
-    public class ExcelRow : IRow
+    public class Row : IRow
     {
-        internal Row row;
+        internal XlSpreadsheet.Row row;
         private CellsList cells;
 
-        public ExcelRow()
+        public Row()
         {
-            row = new Row();
+            row = new XlSpreadsheet.Row();
             cells = new CellsList(row);
         }
 
-        internal ExcelRow(Row row)
+        internal Row(XlSpreadsheet.Row row)
         {
             this.row = row;
             cells = new CellsList(row);
@@ -47,15 +38,15 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
             }
         }
 
-        public IList<ICell> Cells 
+        public IList<ICell> Cells
         {
-            get => cells; 
+            get => cells;
             set
             {
-                row.RemoveAllChildren<Cell>();
-                foreach(var cell in value)
+                row.RemoveAllChildren<XlSpreadsheet.Cell>();
+                foreach (var cell in value)
                 {
-                    var excelCell = new ExcelCell();
+                    var excelCell = new Cell();
                     excelCell.Value = cell.Value;
                     row.AddChild(excelCell.cell);
                 }
@@ -65,44 +56,44 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
 
         private class CellsList : IList<ICell>
         {
-            private Row row;
+            private XlSpreadsheet.Row row;
 
-            public CellsList(Row row)
+            public CellsList(XlSpreadsheet.Row row)
             {
                 this.row = row;
             }
 
             public ICell this[int index]
             {
-                get => new ExcelCell(row.Elements<Cell>().ElementAt(index));
+                get => new Cell(row.Elements<XlSpreadsheet.Cell>().ElementAt(index));
                 set
                 {
-                    var excelCell = new ExcelCell();
+                    var excelCell = new Cell();
                     excelCell.Value = value.Value;
-                    var oldChild = row.Elements<Cell>().ElementAt(index);
+                    var oldChild = row.Elements<XlSpreadsheet.Cell>().ElementAt(index);
                     row.ReplaceChild(excelCell.cell, oldChild);
                 }
             }
 
-            public int Count => row.Elements<Cell>().Count();
+            public int Count => row.Elements<XlSpreadsheet.Cell>().Count();
 
             public bool IsReadOnly => false;
 
             public void Add(ICell item)
             {
-                var excelCell = new ExcelCell();
+                var excelCell = new Cell();
                 excelCell.Value = item.Value;
                 row.AddChild(excelCell.cell);
             }
 
             public void Clear()
             {
-                row.RemoveAllChildren<Cell>();
+                row.RemoveAllChildren<XlSpreadsheet.Cell>();
             }
 
             public bool Contains(ICell item)
             {
-                var result = from cell in row.Elements<Cell>()
+                var result = from cell in row.Elements<XlSpreadsheet.Cell>()
                              where cell.CellValue != null && cell.CellValue.ToString() == item.Value
                              select cell;
                 return result.Any();
@@ -112,20 +103,20 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
             {
                 for (int i = 0; i < Count; i++)
                 {
-                    var cell = row.Elements<Cell>().ElementAt(i);
-                    array.SetValue(new ExcelCell(cell), arrayIndex++);
+                    var cell = row.Elements<XlSpreadsheet.Cell>().ElementAt(i);
+                    array.SetValue(new Cell(cell), arrayIndex++);
                 }
             }
 
             public IEnumerator<ICell> GetEnumerator()
             {
-                return (IEnumerator<ICell>)(from cell in row.Elements<Cell>()
-                                            select new ExcelCell(cell));
+                return (IEnumerator<ICell>)(from cell in row.Elements<XlSpreadsheet.Cell>()
+                                            select new Cell(cell));
             }
 
             public int IndexOf(ICell item)
             {
-                var cells = row.Elements<Cell>();
+                var cells = row.Elements<XlSpreadsheet.Cell>();
                 for (int i = 0; i < cells.Count(); i++)
                 {
                     var cell = cells.ElementAt(i);
@@ -139,14 +130,14 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
 
             public void Insert(int index, ICell item)
             {
-                var excelCell = new ExcelCell();
+                var excelCell = new Cell();
                 excelCell.Value = item.Value;
                 row.InsertAt(excelCell.cell, index);
             }
 
             public bool Remove(ICell item)
             {
-                var excelCell = new ExcelCell();
+                var excelCell = new Cell();
                 excelCell.Value = item.Value;
                 if (row.RemoveChild(excelCell.cell) != null)
                 {
@@ -157,7 +148,7 @@ namespace Hasselman.Backsplice.Spreadsheet.Excel
 
             public void RemoveAt(int index)
             {
-                var cell = row.Elements<Cell>().ElementAt(index);
+                var cell = row.Elements<XlSpreadsheet.Cell>().ElementAt(index);
                 row.RemoveChild(cell);
             }
 
